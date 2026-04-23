@@ -1,91 +1,47 @@
-﻿const Program = require("../models/Program");
+const Program = require("../models/Program");
 const asyncHandler = require("../utils/asyncHandler");
-
-function parseBoolean(value) {
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
+const QueryBuilder = require("../utils/queryBuilder");
 
 const listPrograms = asyncHandler(async (req, res) => {
-  const {
-    country,
-    degreeLevel,
-    intake,
-    field,
-    q,
-    maxTuition,
-    scholarshipAvailable,
-    sortBy = "relevance",
-    page = 1,
-    limit = 10,
-  } = req.query;
+  const queryBuilder = new QueryBuilder(Program, req.query)
+    .filter()
+    .sort()
+    .paginate();
 
-  const filters = {};
-
-  if (country) {
-    filters.country = country;
-  }
-
-  if (degreeLevel) {
-    filters.degreeLevel = degreeLevel;
-  }
-
-  if (field) {
-    filters.field = field;
-  }
-
-  if (intake) {
-    filters.intakes = intake;
-  }
-
-  if (maxTuition) {
-    filters.tuitionFeeUsd = { $lte: Number(maxTuition) };
-  }
-
-  const scholarshipFlag = parseBoolean(scholarshipAvailable);
-  if (typeof scholarshipFlag === "boolean") {
-    filters.scholarshipAvailable = scholarshipFlag;
-  }
-
-  if (q) {
-    filters.$or = [
-      { title: { $regex: q, $options: "i" } },
-      { universityName: { $regex: q, $options: "i" } },
-      { field: { $regex: q, $options: "i" } },
-    ];
-  }
-
-  const pageNumber = Math.max(Number(page), 1);
-  const pageSize = Math.min(Math.max(Number(limit), 1), 50);
-
-  const sortMap = {
-    tuitionAsc: { tuitionFeeUsd: 1 },
-    tuitionDesc: { tuitionFeeUsd: -1 },
-    relevance: { scholarshipAvailable: -1, tuitionFeeUsd: 1 },
-  };
-
-  const [items, total] = await Promise.all([
-    Program.find(filters)
-      .sort(sortMap[sortBy] || sortMap.relevance)
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .lean(),
-    Program.countDocuments(filters),
-  ]);
+  const { items, meta } = await queryBuilder.execute();
 
   res.json({
     success: true,
     data: items,
-    meta: {
-      page: pageNumber,
-      limit: pageSize,
-      total,
-      totalPages: Math.ceil(total / pageSize),
-    },
+    meta,
+  });
+});
+
+const getProgramById = asyncHandler(async (req, res) => {
+  const program = await Program.findById(req.params.id).populate("university");
+  if (!program) {
+    throw new HttpError(404, "Program not found");
+  }
+  res.json({ success: true, data: program });
+});
+
+const comparePrograms = asyncHandler(async (req, res) => {
+  const { ids } = req.query; // Expecting comma separated IDs
+  if (!ids) {
+    throw new HttpError(400, "Program IDs are required for comparison");
+  }
+
+  const programIds = ids.split(",");
+  const programs = await Program.find({ _id: { $in: programIds } }).populate("university");
+
+  res.json({
+    success: true,
+    data: programs,
   });
 });
 
 module.exports = {
   listPrograms,
+  getProgramById,
+  comparePrograms,
 };

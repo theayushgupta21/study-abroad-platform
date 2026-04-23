@@ -1,9 +1,14 @@
-﻿const express = require("express");
-
+const express = require("express");
 const { getRecommendations } = require("../controllers/recommendationController");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/:studentId", getRecommendations);
+router.get("/mine", requireAuth, (req, res, next) => {
+  req.params.studentId = req.user._id;
+  next();
+}, getRecommendations);
+
+router.get("/:studentId", requireAuth, getRecommendations);
 
 module.exports = router;

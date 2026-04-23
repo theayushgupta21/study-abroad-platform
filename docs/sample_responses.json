@@ -1,0 +1,55 @@
+{
+  "recommendations_response": {
+    "success": true,
+    "data": {
+      "student": {
+        "id": "64f1234567890abcdef12345",
+        "fullName": "Aarav Malhotra",
+        "preferences": {
+          "countries": ["Canada", "UAE"],
+          "fields": ["Computer Science"],
+          "budget": 20000
+        },
+        "academicInfo": {
+          "gpa": 3.8,
+          "degree": "B.Tech",
+          "major": "Computer Science"
+        }
+      },
+      "recommendations": [
+        {
+          "_id": "64f1234567890abcdef12346",
+          "universityName": "University of Windsor",
+          "title": "Master of Applied Computing",
+          "country": "Canada",
+          "tuitionFeeUsd": 22800,
+          "matchScore": 85,
+          "reasons": [
+            "Preferred country match: Canada",
+            "Field alignment: Computer Science",
+            "Within budget range (Flex Applied)"
+          ]
+        }
+      ],
+      "aiStudyPlan": {
+        "timeline": [
+          { "phase": "IELTS Preparation", "duration": "2-3 Months", "goal": "Achieve minimum 7.0 band score" },
+          { "phase": "Document Collection", "duration": "1 Month", "goal": "Transcript, SOP, and LORs" }
+        ],
+        "suggestions": [
+          "Your IELTS score already meets the requirement. Use this time for SOP refinement.",
+          "Your academic standing is strong for this program."
+        ],
+        "budgetBreakdown": {
+          "tuition": 22800,
+          "estimatedLiving": 15000,
+          "totalEstimate": 37800,
+          "savingsNeeded": 17800
+        }
+      }
+    },
+    "meta": {
+      "implementationStatus": "mongodb-aggregation-pipeline-with-ai-planning"
+    }
+  }
+}

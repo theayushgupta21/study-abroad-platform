@@ -1,4 +1,4 @@
-﻿const bcrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(
@@ -43,6 +43,19 @@ const studentSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    academicBackground: {
+      gpa: Number,
+      degree: String,
+      major: String,
+      graduationYear: Number,
+    },
+    refreshToken: String,
+    savedPrograms: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Program",
+      },
+    ],
   },
   {
     timestamps: true,

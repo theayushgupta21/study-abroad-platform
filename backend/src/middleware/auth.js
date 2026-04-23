@@ -1,4 +1,4 @@
-﻿const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 const env = require("../config/env");
 const Student = require("../models/Student");
@@ -29,6 +29,19 @@ const requireAuth = asyncHandler(async (req, res, next) => {
   }
 });
 
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      throw new HttpError(
+        403,
+        "You do not have permission to perform this action."
+      );
+    }
+    next();
+  };
+};
+
 module.exports = {
   requireAuth,
+  restrictTo,
 };
